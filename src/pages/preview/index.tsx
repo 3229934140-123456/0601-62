@@ -19,6 +19,7 @@ const PreviewPage: React.FC = () => {
   const { invitationData, updateField, hydrate } = useEditorStore();
   const guests = useGuestStore((state) => state.guests);
   const guestHydrate = useGuestStore((state) => state.hydrate);
+  const getDisplayTitle = useGuestStore((state) => state.getDisplayTitle);
   const router = Taro.useRouter();
   const guestId = router.params.guestId;
 
@@ -47,11 +48,11 @@ const PreviewPage: React.FC = () => {
   }, [guestId, guests]);
 
   const greetingText = useMemo(() => {
-    if (currentGuest && currentGuest.title) {
-      return `尊敬的 ${currentGuest.title}`;
+    if (currentGuest) {
+      return `尊敬的 ${getDisplayTitle(currentGuest)}`;
     }
     return '';
-  }, [currentGuest]);
+  }, [currentGuest, getDisplayTitle]);
 
   useEffect(() => {
     if (invitationData.passwordEnabled && !passwordVerified) {
@@ -98,15 +99,24 @@ const PreviewPage: React.FC = () => {
     });
   };
 
-  const handlePasswordToggle = (enabled: boolean) => {
-    if (enabled) {
-      setPasswordInput(invitationData.password || '');
+  const handlePasswordToggle = () => {
+    if (!invitationData.passwordEnabled) {
+      setPasswordInput('');
+      setPasswordError('');
       setShowPasswordModal(true);
-    } else {
-      updateField('passwordEnabled', false);
-      updateField('password', '');
-      setPasswordVerified(false);
-      Taro.showToast({ title: '已关闭访问口令', icon: 'success' });
+    } else if (passwordVerified) {
+      Taro.showModal({
+        title: '关闭访问口令',
+        content: '确定要关闭访问口令吗？关闭后任何人都可以直接查看邀请函',
+        success: (res) => {
+          if (res.confirm) {
+            updateField('passwordEnabled', false);
+            updateField('password', '');
+            setPasswordVerified(false);
+            Taro.showToast({ title: '已关闭访问口令', icon: 'success' });
+          }
+        },
+      });
     }
   };
 
@@ -268,38 +278,42 @@ const PreviewPage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.phoneSelector}>
-        {phoneOptions.map((opt) => (
-          <View
-            key={opt.key}
-            className={classnames(styles.phoneOption, phoneType === opt.key && styles.active)}
-            onClick={() => setPhoneType(opt.key)}
-          >
-            <View className={classnames(styles.phoneIcon, styles[opt.key])} />
-            <Text className={styles.phoneName}>{opt.label}</Text>
-          </View>
-        ))}
-      </View>
+      {canViewContent && (
+        <View className={styles.phoneSelector}>
+          {phoneOptions.map((opt) => (
+            <View
+              key={opt.key}
+              className={classnames(styles.phoneOption, phoneType === opt.key && styles.active)}
+              onClick={() => setPhoneType(opt.key)}
+            >
+              <View className={classnames(styles.phoneIcon, styles[opt.key])} />
+              <Text className={styles.phoneName}>{opt.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
-      <View className={styles.actionBar}>
-        <View className={styles.actionBtn} onClick={() => handlePasswordToggle(!invitationData.passwordEnabled)}>
-          <Text className={styles.actionIcon}>{invitationData.passwordEnabled ? '🔒' : '🔓'}</Text>
-          <Text className={styles.actionText}>
-            {invitationData.passwordEnabled ? '已加密' : '访问口令'}
-          </Text>
+      {canViewContent && (
+        <View className={styles.actionBar}>
+          <View className={styles.actionBtn} onClick={handlePasswordToggle}>
+            <Text className={styles.actionIcon}>{invitationData.passwordEnabled ? '🔒' : '🔓'}</Text>
+            <Text className={styles.actionText}>
+              {invitationData.passwordEnabled ? '修改口令' : '访问口令'}
+            </Text>
+          </View>
+          <View className={styles.actionBtn} onClick={handleExportImage}>
+            <Text className={styles.actionIcon}>🖼️</Text>
+            <Text className={styles.actionText}>导出长图</Text>
+          </View>
+          <View className={styles.actionBtn} onClick={handlePrint}>
+            <Text className={styles.actionIcon}>🖨️</Text>
+            <Text className={styles.actionText}>打印小卡</Text>
+          </View>
+          <View className={styles.shareBtn} onClick={handleShare}>
+            <Text>分享给好友</Text>
+          </View>
         </View>
-        <View className={styles.actionBtn} onClick={handleExportImage}>
-          <Text className={styles.actionIcon}>🖼️</Text>
-          <Text className={styles.actionText}>导出长图</Text>
-        </View>
-        <View className={styles.actionBtn} onClick={handlePrint}>
-          <Text className={styles.actionIcon}>🖨️</Text>
-          <Text className={styles.actionText}>打印小卡</Text>
-        </View>
-        <View className={styles.shareBtn} onClick={handleShare}>
-          <Text>分享给好友</Text>
-        </View>
-      </View>
+      )}
 
       {showPasswordModal && (
         <View className={styles.passwordModal} onClick={() => setShowPasswordModal(false)}>

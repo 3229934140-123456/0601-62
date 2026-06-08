@@ -18,6 +18,7 @@ const GuestsPage: React.FC = () => {
   const updateRsvp = useGuestStore((state) => state.updateRsvp);
   const updateGuestsCount = useGuestStore((state) => state.updateGuestsCount);
   const generateTitle = useGuestStore((state) => state.generateTitle);
+  const getDisplayTitle = useGuestStore((state) => state.getDisplayTitle);
   const hydrate = useGuestStore((state) => state.hydrate);
   const stats = useGuestStore(selectGuestStats);
   const groupStats = useGuestStore(selectGroupStats);
@@ -119,8 +120,20 @@ const GuestsPage: React.FC = () => {
     const lines = text.trim().split('\n').filter((line) => line.trim());
     const result: Omit<Guest, 'id' | 'createdAt'>[] = [];
 
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    const numberRegex = /^\d+$/;
+    const commonGroups = [...defaultGroups, '男方亲友', '女方亲友', '家人', '领导', '朋友', '同事', '同学', '亲戚', '其他'];
+
     lines.forEach((line) => {
-      const parts = line.split(/[,，\t]+/).map((s) => s.trim()).filter(Boolean);
+      let parts = line.split(/[,，\t]+/).map((s) => s.trim()).filter(Boolean);
+
+      if (parts.length <= 1) {
+        const spaceParts = line.trim().split(/\s+/).filter(Boolean);
+        if (spaceParts.length > 1) {
+          parts = spaceParts;
+        }
+      }
+
       if (parts.length === 0) return;
 
       let name = '';
@@ -128,20 +141,16 @@ const GuestsPage: React.FC = () => {
       let group = '朋友';
       let count = 1;
 
-      const phoneRegex = /^1[3-9]\d{9}$/;
-      const numberRegex = /^\d+$/;
-      const commonGroups = [...defaultGroups, '男方亲友', '女方亲友', '家人', '领导'];
-
-      let nonPhoneNonNumber: string[] = [];
       let foundPhone = false;
       let foundNumber = false;
       let foundGroup = false;
 
-      parts.forEach((part) => {
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
         if (!foundPhone && phoneRegex.test(part)) {
           phone = part;
           foundPhone = true;
-        } else if (!foundNumber && numberRegex.test(part) && parseInt(part) <= 10) {
+        } else if (!foundNumber && numberRegex.test(part) && parseInt(part) <= 20) {
           count = parseInt(part);
           foundNumber = true;
         } else if (!foundGroup && commonGroups.includes(part)) {
@@ -149,13 +158,7 @@ const GuestsPage: React.FC = () => {
           foundGroup = true;
         } else if (!name) {
           name = part;
-        } else {
-          nonPhoneNonNumber.push(part);
         }
-      });
-
-      if (!name && nonPhoneNonNumber.length > 0) {
-        name = nonPhoneNonNumber[0];
       }
 
       if (name) {
@@ -199,10 +202,7 @@ const GuestsPage: React.FC = () => {
   const handleUpdateRsvp = (status: 'confirmed' | 'declined' | 'pending') => {
     if (!selectedGuest) return;
     updateRsvp(selectedGuest.id, status);
-    const updatedGuest = guests.find((g) => g.id === selectedGuest.id);
-    if (updatedGuest) {
-      setSelectedGuest(updatedGuest);
-    }
+    setSelectedGuest({ ...selectedGuest, rsvpStatus: status });
     const statusText = status === 'confirmed' ? '已确认参加' : status === 'declined' ? '已婉拒' : '待回复';
     Taro.showToast({ title: statusText, icon: 'success' });
   };
@@ -211,10 +211,7 @@ const GuestsPage: React.FC = () => {
     if (!selectedGuest) return;
     const newCount = Math.max(1, selectedGuest.guestsCount + delta);
     updateGuestsCount(selectedGuest.id, newCount);
-    const updatedGuest = guests.find((g) => g.id === selectedGuest.id);
-    if (updatedGuest) {
-      setSelectedGuest(updatedGuest);
-    }
+    setSelectedGuest({ ...selectedGuest, guestsCount: newCount });
   };
 
   const handleDeleteGuest = () => {
@@ -488,7 +485,7 @@ const GuestsPage: React.FC = () => {
 
             <View className={styles.detailSection}>
               <Text className={styles.detailLabel}>称呼</Text>
-              <Text className={styles.detailValue}>{selectedGuest.title}</Text>
+              <Text className={styles.detailValue}>{selectedGuest ? getDisplayTitle(selectedGuest) : ''}</Text>
             </View>
 
             <View className={styles.detailSection}>

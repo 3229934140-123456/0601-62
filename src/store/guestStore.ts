@@ -12,6 +12,7 @@ interface GuestState {
   updateRsvp: (id: string, status: 'pending' | 'confirmed' | 'declined') => void;
   updateGuestsCount: (id: string, count: number) => void;
   generateTitle: (name: string, gender?: 'male' | 'female') => string;
+  getDisplayTitle: (guest: Guest) => string;
   hydrate: () => void;
 }
 
@@ -130,6 +131,16 @@ export const useGuestStore = create<GuestState>((set, get) => ({
     if (gender === 'male') return `${name}先生`;
     if (gender === 'female') return `${name}女士`;
     return `${name}先生/女士`;
+  },
+
+  getDisplayTitle: (guest) => {
+    if (!guest.title) {
+      return `${guest.name}先生/女士`;
+    }
+    if (guest.title.includes(guest.name)) {
+      return guest.title;
+    }
+    return `${guest.name}${guest.title}`;
   },
 }));
 

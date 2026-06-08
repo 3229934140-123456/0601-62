@@ -1,0 +1,58 @@
+import { Wish } from '@/types/wish';
+
+export const wishList: Wish[] = [
+  {
+    id: 'w001',
+    author: '张伟',
+    avatar: 'https://picsum.photos/id/64/100/100',
+    content: '祝新人百年好合，永结同心！早生贵子～',
+    createdAt: '2026-06-06 10:30',
+    likes: 12,
+    isLiked: false,
+  },
+  {
+    id: 'w002',
+    author: '李娜',
+    avatar: 'https://picsum.photos/id/91/100/100',
+    content: '祝福最美的新娘！要一直幸福下去哦💕',
+    createdAt: '2026-06-06 11:15',
+    likes: 8,
+    isLiked: true,
+  },
+  {
+    id: 'w003',
+    author: '王强',
+    avatar: 'https://picsum.photos/id/177/100/100',
+    content: '恭喜恭喜！祝新婚快乐，工作爱情双丰收！',
+    createdAt: '2026-06-06 14:20',
+    likes: 5,
+    isLiked: false,
+  },
+  {
+    id: 'w004',
+    author: '陈静',
+    avatar: 'https://picsum.photos/id/338/100/100',
+    content: '表妹嫁得真好！祝你们白头偕老，永远幸福！',
+    createdAt: '2026-06-06 16:45',
+    likes: 15,
+    isLiked: false,
+  },
+  {
+    id: 'w005',
+    author: '孙丽',
+    avatar: 'https://picsum.photos/id/1027/100/100',
+    content: '从同桌到婚纱，见证了你们的爱情，真好！祝福！',
+    createdAt: '2026-06-06 19:30',
+    likes: 20,
+    isLiked: true,
+  },
+  {
+    id: 'w006',
+    author: '赵磊',
+    avatar: 'https://picsum.photos/id/1/100/100',
+    content: '新婚快乐！以后代码有人review了😄',
+    createdAt: '2026-06-07 09:00',
+    likes: 7,
+    isLiked: false,
+  },
+];

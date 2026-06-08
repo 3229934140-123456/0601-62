@@ -1,0 +1,52 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  width: 100%;
+}
+
+.wrap {
+  @include scroll-x-container;
+  padding: $spacing-sm 0;
+}
+
+.item {
+  @include scroll-x-item(140rpx);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md $spacing-sm;
+  margin-right: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+
+    .icon {
+      transform: scale(1.1);
+    }
+
+    .label {
+      color: $color-text-white;
+      font-weight: $font-weight-semibold;
+    }
+  }
+}
+
+.icon {
+  font-size: 48rpx;
+  margin-bottom: $spacing-sm;
+  transition: transform $transition-base;
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

@@ -1,0 +1,485 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $color-bg-page;
+}
+
+.previewArea {
+  flex: 1;
+  padding: $spacing-lg $page-padding 200rpx;
+  overflow-y: auto;
+}
+
+.previewCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(255, 107, 139, 0.15);
+}
+
+.coverSection {
+  position: relative;
+  width: 100%;
+  height: 500rpx;
+  overflow: hidden;
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.coverOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-white;
+  text-align: center;
+}
+
+.coverSubtitle {
+  font-size: $font-size-sm;
+  letter-spacing: 4rpx;
+  opacity: 0.9;
+}
+
+.coverTitle {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  margin-top: $spacing-sm;
+}
+
+.names {
+  font-size: $font-size-lg;
+  margin-top: $spacing-md;
+  letter-spacing: 2rpx;
+}
+
+.dateInfo {
+  position: absolute;
+  bottom: $spacing-lg;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: $color-text-white;
+}
+
+.dateText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.locationText {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-top: $spacing-xs;
+}
+
+.contentSection {
+  padding: $spacing-lg;
+}
+
+.countdownSection {
+  text-align: center;
+  padding: $spacing-lg 0;
+  background: linear-gradient(135deg, $color-primary-bg 0%, #ffffff 100%);
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.countdownTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.countdownItems {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+}
+
+.countdownItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdownNum {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  border-radius: $radius-md;
+}
+
+.countdownLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+
+  &::before,
+  &::after {
+    content: '';
+    display: inline-block;
+    width: 40rpx;
+    height: 2rpx;
+    background: $color-primary;
+    vertical-align: middle;
+    margin: 0 $spacing-sm;
+  }
+}
+
+.scheduleList {
+  position: relative;
+  padding-left: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 10rpx;
+    top: 0;
+    bottom: 0;
+    width: 2rpx;
+    background: $color-primary-light;
+  }
+}
+
+.scheduleItem {
+  position: relative;
+  padding-bottom: $spacing-lg;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -42rpx;
+    top: 8rpx;
+    width: 16rpx;
+    height: 16rpx;
+    background: $color-primary;
+    border-radius: 50%;
+    border: 4rpx solid $color-bg-card;
+    box-shadow: 0 0 0 2rpx $color-primary;
+  }
+}
+
+.scheduleTime {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.scheduleTitle {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.scheduleDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.photoSection {
+  margin-bottom: $spacing-lg;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+}
+
+.photoItem {
+  width: 100%;
+  height: 200rpx;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.locationSection {
+  background: $color-primary-bg;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.locationIcon {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  border-radius: $radius-md;
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+
+.locationInfo {
+  flex: 1;
+}
+
+.locationName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.locationAddress {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-sm $page-padding;
+  padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-sm;
+  z-index: 100;
+}
+
+.toolBtn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.toolIcon {
+  font-size: 40rpx;
+  margin-bottom: 4rpx;
+}
+
+.previewBtn {
+  flex: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.editPanel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: $spacing-lg;
+  padding-bottom: calc(#{$spacing-lg} + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  transform: translateY(100%);
+  transition: transform $transition-base;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  &.show {
+    transform: translateY(0);
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.panelTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.panelClose {
+  font-size: $font-size-xl;
+  color: $color-text-tertiary;
+  padding: $spacing-xs;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.colorList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.colorItem {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  border: 4rpx solid transparent;
+  transition: all $transition-fast;
+
+  &.active {
+    border-color: $color-primary;
+    transform: scale(1.1);
+  }
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+}
+
+.switchLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.addBtn {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-md;
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+  margin-top: $spacing-sm;
+}
+
+.scheduleEditItem {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+  padding: $spacing-sm;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.scheduleEditTime {
+  width: 140rpx;
+  height: 64rpx;
+  padding: 0 $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  flex-shrink: 0;
+}
+
+.scheduleEditInfo {
+  flex: 1;
+}
+
+.scheduleEditTitle {
+  width: 100%;
+  height: 64rpx;
+  padding: 0 $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.scheduleEditDesc {
+  width: 100%;
+  height: 56rpx;
+  padding: 0 $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+}

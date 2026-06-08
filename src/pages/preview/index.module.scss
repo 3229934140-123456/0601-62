@@ -1,0 +1,329 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+}
+
+.phoneFrame {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  overflow: hidden;
+}
+
+.phone {
+  width: 540rpx;
+  max-width: 90%;
+  background: #fff;
+  border-radius: 48rpx;
+  overflow: hidden;
+  box-shadow: 0 0 60rpx rgba(0, 0, 0, 0.3);
+  border: 8rpx solid #333;
+}
+
+.phoneHeader {
+  height: 60rpx;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &::before {
+    content: '';
+    width: 120rpx;
+    height: 6rpx;
+    background: #eee;
+    border-radius: 3rpx;
+  }
+}
+
+.phoneContent {
+  height: 800rpx;
+  overflow-y: auto;
+}
+
+.coverSection {
+  position: relative;
+  height: 400rpx;
+  overflow: hidden;
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.coverOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.coverTitle {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+}
+
+.names {
+  font-size: $font-size-md;
+  margin-top: $spacing-sm;
+}
+
+.dateInfo {
+  position: absolute;
+  bottom: $spacing-md;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #fff;
+  font-size: $font-size-sm;
+}
+
+.phoneBody {
+  padding: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+  margin: $spacing-md 0;
+  color: $color-text-primary;
+}
+
+.scheduleList {
+  position: relative;
+  padding-left: $spacing-md;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 6rpx;
+    top: 0;
+    bottom: 0;
+    width: 2rpx;
+    background: $color-primary-light;
+  }
+}
+
+.scheduleItem {
+  position: relative;
+  padding-bottom: $spacing-md;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -34rpx;
+    top: 6rpx;
+    width: 12rpx;
+    height: 12rpx;
+    background: $color-primary;
+    border-radius: 50%;
+  }
+}
+
+.scheduleTime {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.scheduleTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.phoneSelector {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding: $spacing-md 0;
+  background: #1a1a1a;
+}
+
+.phoneOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  opacity: 0.5;
+  transition: all $transition-fast;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
+.phoneIcon {
+  width: 48rpx;
+  height: 80rpx;
+  border: 3rpx solid #fff;
+  border-radius: 8rpx;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 4rpx;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16rpx;
+    height: 4rpx;
+    background: #fff;
+    border-radius: 2rpx;
+  }
+
+  &.small {
+    width: 40rpx;
+    height: 70rpx;
+  }
+
+  &.large {
+    width: 56rpx;
+    height: 90rpx;
+  }
+}
+
+.phoneName {
+  color: #fff;
+  font-size: $font-size-xs;
+}
+
+.actionBar {
+  background: #fff;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  background: $color-bg-section;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.actionIcon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.actionText {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+}
+
+.shareBtn {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.passwordModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.passwordContent {
+  width: 600rpx;
+  background: #fff;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin: 0 $page-padding;
+}
+
+.passwordTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+}
+
+.passwordInput {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  margin-bottom: $spacing-lg;
+  box-sizing: border-box;
+}
+
+.passwordBtns {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.passwordBtn {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  transition: all $transition-fast;
+
+  &.cancel {
+    background: $color-bg-section;
+    color: $color-text-secondary;
+  }
+
+  &.confirm {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+    color: $color-text-white;
+    font-weight: $font-weight-semibold;
+  }
+}

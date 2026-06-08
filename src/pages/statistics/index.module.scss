@@ -1,0 +1,171 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding: $spacing-md $page-padding;
+  box-sizing: border-box;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.chartPlaceholder {
+  height: 300rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 240rpx;
+  padding: $spacing-md 0;
+  border-bottom: 2rpx solid $color-divider;
+}
+
+.barItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  width: 60rpx;
+}
+
+.bar {
+  width: 100%;
+  background: linear-gradient(180deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-xs $radius-xs 0 0;
+  transition: height $transition-slow;
+}
+
+.barLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.sourceList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sourceItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.sourceName {
+  width: 120rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.sourceBar {
+  flex: 1;
+  height: 20rpx;
+  background: $color-bg-section;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+
+.sourceFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: 10rpx;
+  transition: width $transition-slow;
+}
+
+.sourceValue {
+  width: 80rpx;
+  text-align: right;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.rsvpStats {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.rsvpItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.rsvpNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-success;
+}
+
+.rsvpLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.rsvpPending {
+  color: $color-warning;
+}
+
+.rsvpDeclined {
+  color: $color-text-disabled;
+}
+
+.timeRange {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.rangeBtn {
+  flex: 1;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-bg-section;
+  border-radius: $radius-button;
+  transition: all $transition-fast;
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+    color: $color-text-white;
+    font-weight: $font-weight-semibold;
+  }
+}

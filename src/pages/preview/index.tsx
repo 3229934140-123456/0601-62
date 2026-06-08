@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Input, Switch } from '@tarojs/components';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, Image, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { useEditorStore } from '@/store/editorStore';
+import { useGuestStore } from '@/store/guestStore';
 import { getCountdown, lightenColor } from '@/utils';
 
 type PhoneType = 'small' | 'normal' | 'large';
@@ -15,7 +16,12 @@ const phoneOptions: { key: PhoneType; label: string }[] = [
 ];
 
 const PreviewPage: React.FC = () => {
-  const { invitationData, updateInvitation } = useEditorStore();
+  const { invitationData, updateField, hydrate } = useEditorStore();
+  const guests = useGuestStore((state) => state.guests);
+  const guestHydrate = useGuestStore((state) => state.hydrate);
+  const router = Taro.useRouter();
+  const guestId = router.params.guestId;
+
   const [phoneType, setPhoneType] = useState<PhoneType>('normal');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showPasswordVerify, setShowPasswordVerify] = useState(false);
@@ -24,15 +30,36 @@ const PreviewPage: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [showLongImage, setShowLongImage] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    hydrate();
+    guestHydrate();
+    setHydrated(true);
+  }, [hydrate, guestHydrate]);
 
   const colorTheme = invitationData.colorTheme;
   const lightThemeColor = lightenColor(colorTheme, 40);
 
+  const currentGuest = useMemo(() => {
+    if (!guestId) return null;
+    return guests.find((g) => g.id === guestId) || null;
+  }, [guestId, guests]);
+
+  const greetingText = useMemo(() => {
+    if (currentGuest && currentGuest.title) {
+      return `尊敬的 ${currentGuest.title}`;
+    }
+    return '';
+  }, [currentGuest]);
+
   useEffect(() => {
     if (invitationData.passwordEnabled && !passwordVerified) {
       setShowPasswordVerify(true);
+    } else {
+      setShowPasswordVerify(false);
     }
-  }, []);
+  }, [invitationData.passwordEnabled, passwordVerified]);
 
   useEffect(() => {
     if (!invitationData.countdownEnabled) return;
@@ -73,21 +100,26 @@ const PreviewPage: React.FC = () => {
 
   const handlePasswordToggle = (enabled: boolean) => {
     if (enabled) {
+      setPasswordInput(invitationData.password || '');
       setShowPasswordModal(true);
     } else {
-      updateInvitation({ passwordEnabled: false, password: '' });
+      updateField('passwordEnabled', false);
+      updateField('password', '');
+      setPasswordVerified(false);
       Taro.showToast({ title: '已关闭访问口令', icon: 'success' });
     }
   };
 
   const handlePasswordSet = () => {
-    if (!passwordInput) {
+    if (!passwordInput.trim()) {
       Taro.showToast({ title: '请输入口令', icon: 'none' });
       return;
     }
-    updateInvitation({ passwordEnabled: true, password: passwordInput });
+    updateField('passwordEnabled', true);
+    updateField('password', passwordInput.trim());
     setShowPasswordModal(false);
     setPasswordInput('');
+    setPasswordVerified(true);
     Taro.showToast({ title: '口令已设置', icon: 'success' });
   };
 
@@ -128,6 +160,11 @@ const PreviewPage: React.FC = () => {
                     onError={(e) => console.error('[Preview] Cover error:', e)}
                   />
                   <View className={styles.coverOverlay}>
+                    {greetingText && (
+                      <Text style={{ fontSize: 24, marginBottom: 12, opacity: 0.9 }}>
+                        {greetingText}
+                      </Text>
+                    )}
                     <Text className={styles.coverTitle} style={{ color: colorTheme }}>
                       {invitationData.title}
                     </Text>
@@ -179,9 +216,20 @@ const PreviewPage: React.FC = () => {
                   )}
 
                   <Text className={styles.sectionTitle} style={{ color: colorTheme }}>婚礼流程</Text>
-                  <View className={styles.scheduleList} style={{ borderLeftColor: lightThemeColor }}>
+                  <View className={styles.scheduleList}>
                     {invitationData.schedule.slice(0, 3).map((item, index) => (
                       <View key={index} className={styles.scheduleItem}>
+                        <View
+                          style={{
+                            position: 'absolute',
+                            left: -34,
+                            top: 6,
+                            width: 12,
+                            height: 12,
+                            borderRadius: '50%',
+                            background: colorTheme,
+                          }}
+                        />
                         <Text
                           className={styles.scheduleTime}
                           style={{ color: colorTheme }}
@@ -235,7 +283,7 @@ const PreviewPage: React.FC = () => {
 
       <View className={styles.actionBar}>
         <View className={styles.actionBtn} onClick={() => handlePasswordToggle(!invitationData.passwordEnabled)}>
-          <Text className={styles.actionIcon}>🔒</Text>
+          <Text className={styles.actionIcon}>{invitationData.passwordEnabled ? '🔒' : '🔓'}</Text>
           <Text className={styles.actionText}>
             {invitationData.passwordEnabled ? '已加密' : '访问口令'}
           </Text>
@@ -336,6 +384,11 @@ const PreviewPage: React.FC = () => {
                   mode="aspectFill"
                 />
                 <View className={styles.longImageCoverOverlay}>
+                  {greetingText && (
+                    <Text style={{ fontSize: 26, marginBottom: 12, opacity: 0.9 }}>
+                      {greetingText}
+                    </Text>
+                  )}
                   <Text className={styles.longImageTitleText} style={{ color: colorTheme }}>
                     {invitationData.title}
                   </Text>

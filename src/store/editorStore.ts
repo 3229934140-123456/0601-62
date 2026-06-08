@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { InvitationData, ScheduleItem } from '@/types/invitation';
+import Taro from '@tarojs/taro';
 
 interface EditorState {
   invitationData: InvitationData;
@@ -11,7 +12,10 @@ interface EditorState {
   removeSchedule: (index: number) => void;
   updateSchedule: (index: number, item: Partial<ScheduleItem>) => void;
   reset: () => void;
+  hydrate: () => void;
 }
+
+const STORAGE_KEY = 'editor_store_data';
 
 const defaultData: InvitationData = {
   title: '我们结婚啦',
@@ -43,54 +47,104 @@ const defaultData: InvitationData = {
   password: '',
 };
 
-export const useEditorStore = create<EditorState>((set) => ({
+const loadFromStorage = (): InvitationData | null => {
+  try {
+    const data = Taro.getStorageSync(STORAGE_KEY);
+    if (data && typeof data === 'object') {
+      return data as InvitationData;
+    }
+  } catch (e) {
+    console.warn('[EditorStore] Failed to load from storage:', e);
+  }
+  return null;
+};
+
+const saveToStorage = (data: InvitationData) => {
+  try {
+    Taro.setStorageSync(STORAGE_KEY, data);
+  } catch (e) {
+    console.warn('[EditorStore] Failed to save to storage:', e);
+  }
+};
+
+export const useEditorStore = create<EditorState>((set, get) => ({
   invitationData: defaultData,
+
+  hydrate: () => {
+    const saved = loadFromStorage();
+    if (saved) {
+      set({ invitationData: { ...defaultData, ...saved } });
+    }
+  },
+
   setInvitationData: (data) =>
-    set((state) => ({
-      invitationData: { ...state.invitationData, ...data },
-    })),
+    set((state) => {
+      const newData = { ...state.invitationData, ...data };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   updateField: (key, value) =>
-    set((state) => ({
-      invitationData: { ...state.invitationData, [key]: value },
-    })),
+    set((state) => {
+      const newData = { ...state.invitationData, [key]: value };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   addPhoto: (photo) =>
-    set((state) => ({
-      invitationData: {
+    set((state) => {
+      const newData = {
         ...state.invitationData,
         photos: [...state.invitationData.photos, photo],
-      },
-    })),
+      };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   removePhoto: (index) =>
-    set((state) => ({
-      invitationData: {
+    set((state) => {
+      const newData = {
         ...state.invitationData,
         photos: state.invitationData.photos.filter((_, i) => i !== index),
-      },
-    })),
+      };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   addSchedule: (item) =>
-    set((state) => ({
-      invitationData: {
+    set((state) => {
+      const newData = {
         ...state.invitationData,
         schedule: [...state.invitationData.schedule, item],
-      },
-    })),
+      };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   removeSchedule: (index) =>
-    set((state) => ({
-      invitationData: {
+    set((state) => {
+      const newData = {
         ...state.invitationData,
         schedule: state.invitationData.schedule.filter((_, i) => i !== index),
-      },
-    })),
+      };
+      saveToStorage(newData);
+      return { invitationData: newData };
+    }),
+
   updateSchedule: (index, item) =>
     set((state) => {
       const newSchedule = [...state.invitationData.schedule];
       newSchedule[index] = { ...newSchedule[index], ...item };
-      return {
-        invitationData: {
-          ...state.invitationData,
-          schedule: newSchedule,
-        },
+      const newData = {
+        ...state.invitationData,
+        schedule: newSchedule,
       };
+      saveToStorage(newData);
+      return { invitationData: newData };
     }),
-  reset: () => set({ invitationData: defaultData }),
+
+  reset: () => {
+    saveToStorage(defaultData);
+    set({ invitationData: defaultData });
+  },
 }));

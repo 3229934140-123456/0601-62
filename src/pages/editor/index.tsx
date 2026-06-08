@@ -28,9 +28,13 @@ const demoMusicList = [
 ];
 
 const EditorPage: React.FC = () => {
-  const { invitationData, updateField, addSchedule, removeSchedule, updateSchedule } = useEditorStore();
+  const { invitationData, updateField, addSchedule, removeSchedule, updateSchedule, hydrate } = useEditorStore();
   const [activePanel, setActivePanel] = useState<PanelType>(null);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   const colorTheme = invitationData.colorTheme;
 

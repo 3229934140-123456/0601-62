@@ -1,22 +1,31 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, Input, Textarea } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import GuestItem from '@/components/GuestItem';
-import { guestList as initialGuestList, guestGroups as initialGuestGroups } from '@/data/guests';
+import { useGuestStore, selectGuestStats, selectGroupStats } from '@/store/guestStore';
 import type { Guest } from '@/types/guest';
 
 const defaultGroups = ['亲戚', '朋友', '同事', '同学', '其他'];
 
-const generateTitle = (name: string, gender?: 'male' | 'female'): string => {
-  if (gender === 'male') return `${name}先生`;
-  if (gender === 'female') return `${name}女士`;
-  return `${name}先生/女士`;
-};
-
 const GuestsPage: React.FC = () => {
-  const [guests, setGuests] = useState<Guest[]>(initialGuestList);
+  const guests = useGuestStore((state) => state.guests);
+  const addGuest = useGuestStore((state) => state.addGuest);
+  const addGuests = useGuestStore((state) => state.addGuests);
+  const updateGuest = useGuestStore((state) => state.updateGuest);
+  const deleteGuest = useGuestStore((state) => state.deleteGuest);
+  const updateRsvp = useGuestStore((state) => state.updateRsvp);
+  const updateGuestsCount = useGuestStore((state) => state.updateGuestsCount);
+  const generateTitle = useGuestStore((state) => state.generateTitle);
+  const hydrate = useGuestStore((state) => state.hydrate);
+  const stats = useGuestStore(selectGuestStats);
+  const groupStats = useGuestStore(selectGroupStats);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
   const [activeGroup, setActiveGroup] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -34,48 +43,27 @@ const GuestsPage: React.FC = () => {
     gender: 'male' as 'male' | 'female',
   });
 
-  const groupStats = useMemo(() => {
-    const stats: Record<string, { count: number; people: number }> = {};
+  const guestGroups = useMemo(() => {
+    const groupList = [
+      { key: 'all', label: '全部', count: guests.length },
+    ];
     defaultGroups.forEach((g) => {
-      stats[g] = { count: 0, people: 0 };
-    });
-    guests.forEach((g) => {
-      if (stats[g.group]) {
-        stats[g.group].count += 1;
-        stats[g.group].people += g.guestsCount;
-      } else {
-        stats[g.group] = { count: 1, people: g.guestsCount };
+      if (groupStats[g]) {
+        groupList.push({ key: g, label: g, count: groupStats[g].count });
       }
     });
-    return stats;
-  }, [guests]);
-
-  const guestGroups = useMemo(() => {
-    return [
-      { key: 'all', label: '全部', count: guests.length },
-      ...defaultGroups.map((g) => ({
-        key: g,
-        label: g,
-        count: groupStats[g]?.count || 0,
-      })),
-    ];
+    Object.keys(groupStats).forEach((g) => {
+      if (!defaultGroups.includes(g)) {
+        groupList.push({ key: g, label: g, count: groupStats[g].count });
+      }
+    });
+    return groupList;
   }, [guests, groupStats]);
 
   const filteredGuests = useMemo(() => {
     if (activeGroup === 'all') return guests;
     return guests.filter((g) => g.group === activeGroup);
   }, [guests, activeGroup]);
-
-  const stats = useMemo(() => {
-    const total = guests.length;
-    const confirmed = guests.filter((g) => g.rsvpStatus === 'confirmed').length;
-    const pending = guests.filter((g) => g.rsvpStatus === 'pending').length;
-    const declined = guests.filter((g) => g.rsvpStatus === 'declined').length;
-    const totalPeople = guests
-      .filter((g) => g.rsvpStatus !== 'declined')
-      .reduce((sum, g) => sum + g.guestsCount, 0);
-    return { total, confirmed, pending, declined, totalPeople };
-  }, [guests]);
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -101,6 +89,10 @@ const GuestsPage: React.FC = () => {
   };
 
   const handleGenerateTitle = () => {
+    if (!formData.name.trim()) {
+      Taro.showToast({ title: '请先输入姓名', icon: 'none' });
+      return;
+    }
     const title = generateTitle(formData.name, formData.gender);
     setFormData({ ...formData, title });
     Taro.showToast({ title: '称呼已生成', icon: 'success' });
@@ -111,19 +103,74 @@ const GuestsPage: React.FC = () => {
       Taro.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
-    const newGuest: Guest = {
-      id: Date.now().toString(),
+    addGuest({
       name: formData.name.trim(),
       phone: formData.phone,
       group: formData.group,
       title: formData.title || generateTitle(formData.name, formData.gender),
       guestsCount: formData.guestsCount,
       rsvpStatus: 'pending',
-      avatar: '',
-    };
-    setGuests([...guests, newGuest]);
+    });
     setShowAddModal(false);
     Taro.showToast({ title: '添加成功', icon: 'success' });
+  };
+
+  const parseImportText = (text: string): Omit<Guest, 'id' | 'createdAt'>[] => {
+    const lines = text.trim().split('\n').filter((line) => line.trim());
+    const result: Omit<Guest, 'id' | 'createdAt'>[] = [];
+
+    lines.forEach((line) => {
+      const parts = line.split(/[,，\t]+/).map((s) => s.trim()).filter(Boolean);
+      if (parts.length === 0) return;
+
+      let name = '';
+      let phone = '';
+      let group = '朋友';
+      let count = 1;
+
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      const numberRegex = /^\d+$/;
+      const commonGroups = [...defaultGroups, '男方亲友', '女方亲友', '家人', '领导'];
+
+      let nonPhoneNonNumber: string[] = [];
+      let foundPhone = false;
+      let foundNumber = false;
+      let foundGroup = false;
+
+      parts.forEach((part) => {
+        if (!foundPhone && phoneRegex.test(part)) {
+          phone = part;
+          foundPhone = true;
+        } else if (!foundNumber && numberRegex.test(part) && parseInt(part) <= 10) {
+          count = parseInt(part);
+          foundNumber = true;
+        } else if (!foundGroup && commonGroups.includes(part)) {
+          group = part;
+          foundGroup = true;
+        } else if (!name) {
+          name = part;
+        } else {
+          nonPhoneNonNumber.push(part);
+        }
+      });
+
+      if (!name && nonPhoneNonNumber.length > 0) {
+        name = nonPhoneNonNumber[0];
+      }
+
+      if (name) {
+        result.push({
+          name,
+          phone,
+          group,
+          guestsCount: count,
+          rsvpStatus: 'pending',
+          title: `${name}先生/女士`,
+        });
+      }
+    });
+
+    return result;
   };
 
   const handleParseImport = () => {
@@ -131,37 +178,17 @@ const GuestsPage: React.FC = () => {
       Taro.showToast({ title: '请粘贴宾客信息', icon: 'none' });
       return;
     }
-    const lines = importText.trim().split('\n').filter((line) => line.trim());
-    const newGuests: Guest[] = [];
 
-    lines.forEach((line) => {
-      const parts = line.split(/[,，\t\s]+/).filter(Boolean);
-      if (parts.length >= 1) {
-        const name = parts[0].trim();
-        const phone = parts[1] || '';
-        const group = parts[2] || '朋友';
-        const count = parseInt(parts[3]) || 1;
-        newGuests.push({
-          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          name,
-          phone,
-          group,
-          title: `${name}先生/女士`,
-          guestsCount: count,
-          rsvpStatus: 'pending',
-          avatar: '',
-        });
-      }
-    });
+    const parsedGuests = parseImportText(importText);
 
-    if (newGuests.length === 0) {
+    if (parsedGuests.length === 0) {
       Taro.showToast({ title: '未解析到有效数据', icon: 'none' });
       return;
     }
 
-    setGuests([...guests, ...newGuests]);
+    addGuests(parsedGuests);
     setShowImportModal(false);
-    Taro.showToast({ title: `成功导入${newGuests.length}人`, icon: 'success' });
+    Taro.showToast({ title: `成功导入${parsedGuests.length}人`, icon: 'success' });
   };
 
   const handleGuestClick = (guest: Guest) => {
@@ -171,12 +198,11 @@ const GuestsPage: React.FC = () => {
 
   const handleUpdateRsvp = (status: 'confirmed' | 'declined' | 'pending') => {
     if (!selectedGuest) return;
-    setGuests(
-      guests.map((g) =>
-        g.id === selectedGuest.id ? { ...g, rsvpStatus: status } : g
-      )
-    );
-    setSelectedGuest({ ...selectedGuest, rsvpStatus: status });
+    updateRsvp(selectedGuest.id, status);
+    const updatedGuest = guests.find((g) => g.id === selectedGuest.id);
+    if (updatedGuest) {
+      setSelectedGuest(updatedGuest);
+    }
     const statusText = status === 'confirmed' ? '已确认参加' : status === 'declined' ? '已婉拒' : '待回复';
     Taro.showToast({ title: statusText, icon: 'success' });
   };
@@ -184,12 +210,11 @@ const GuestsPage: React.FC = () => {
   const handleUpdateCount = (delta: number) => {
     if (!selectedGuest) return;
     const newCount = Math.max(1, selectedGuest.guestsCount + delta);
-    setGuests(
-      guests.map((g) =>
-        g.id === selectedGuest.id ? { ...g, guestsCount: newCount } : g
-      )
-    );
-    setSelectedGuest({ ...selectedGuest, guestsCount: newCount });
+    updateGuestsCount(selectedGuest.id, newCount);
+    const updatedGuest = guests.find((g) => g.id === selectedGuest.id);
+    if (updatedGuest) {
+      setSelectedGuest(updatedGuest);
+    }
   };
 
   const handleDeleteGuest = () => {
@@ -199,11 +224,19 @@ const GuestsPage: React.FC = () => {
       content: `确定要删除宾客「${selectedGuest.name}」吗？`,
       success: (res) => {
         if (res.confirm) {
-          setGuests(guests.filter((g) => g.id !== selectedGuest.id));
+          deleteGuest(selectedGuest.id);
           setShowDetailModal(false);
           Taro.showToast({ title: '已删除', icon: 'success' });
         }
       },
+    });
+  };
+
+  const handlePreviewWithGuest = () => {
+    if (!selectedGuest) return;
+    setShowDetailModal(false);
+    Taro.navigateTo({
+      url: `/pages/preview/index?guestId=${selectedGuest.id}`,
     });
   };
 
@@ -254,6 +287,12 @@ const GuestsPage: React.FC = () => {
           {filteredGuests.map((guest) => (
             <GuestItem key={guest.id} guest={guest} onClick={() => handleGuestClick(guest)} />
           ))}
+          {filteredGuests.length === 0 && (
+            <View style={{ padding: 80, textAlign: 'center', color: '#c9cdd4' }}>
+              <Text style={{ fontSize: 60 }}>📭</Text>
+              <Text style={{ marginTop: 16, display: 'block', fontSize: 26 }}>暂无宾客</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -317,7 +356,7 @@ const GuestsPage: React.FC = () => {
                 </View>
               </View>
               <Input
-                className={classnames(styles.formInput)}
+                className={styles.formInput}
                 placeholder="自动生成或手动输入"
                 value={formData.title}
                 style={{ marginTop: 16 }}
@@ -330,7 +369,7 @@ const GuestsPage: React.FC = () => {
               <Input
                 className={styles.formInput}
                 type="number"
-                placeholder="请输入手机号"
+                placeholder="请输入手机号（选填）"
                 value={formData.phone}
                 onInput={(e) => handleInputChange('phone', e.detail.value)}
               />
@@ -354,11 +393,24 @@ const GuestsPage: React.FC = () => {
             <View className={styles.formItem}>
               <Text className={styles.formLabel}>出席人数</Text>
               <View className={styles.countControl}>
-                <View className={styles.countBtn} onClick={() => setFormData({ ...formData, guestsCount: Math.max(1, formData.guestsCount - 1) })}>
+                <View
+                  className={styles.countBtn}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      guestsCount: Math.max(1, formData.guestsCount - 1),
+                    })
+                  }
+                >
                   <Text>-</Text>
                 </View>
                 <Text className={styles.countNum}>{formData.guestsCount}</Text>
-                <View className={styles.countBtn} onClick={() => setFormData({ ...formData, guestsCount: formData.guestsCount + 1 })}>
+                <View
+                  className={styles.countBtn}
+                  onClick={() =>
+                    setFormData({ ...formData, guestsCount: formData.guestsCount + 1 })
+                  }
+                >
                   <Text>+</Text>
                 </View>
               </View>
@@ -383,13 +435,19 @@ const GuestsPage: React.FC = () => {
             <View className={styles.importHint}>
               <Text className={styles.importHintTitle}>格式说明</Text>
               <Text className={styles.importHintText}>
-                每行一位宾客，用空格、逗号或制表符分隔，顺序为：
+                每行一位宾客，用逗号或制表符分隔，顺序随意
               </Text>
               <Text className={styles.importHintCode}>
-                姓名 手机号 分组 人数
+                张三,13800138000,朋友,2
+              </Text>
+              <Text className={styles.importHintCode}>
+                李四,同事,1
+              </Text>
+              <Text className={styles.importHintCode}>
+                王五,亲戚,3
               </Text>
               <Text className={styles.importHintText} style={{ marginTop: 8 }}>
-                手机号、分组、人数为选填，默认分组为"朋友"，默认人数为1
+                手机号、分组、人数为选填，系统会自动识别
               </Text>
             </View>
 
@@ -397,9 +455,10 @@ const GuestsPage: React.FC = () => {
               <Text className={styles.formLabel}>粘贴宾客信息</Text>
               <Textarea
                 className={styles.formTextarea}
-                placeholder="张三 13800138000 朋友 2
-李四 13900139000 同事 1
-王五 亲戚 3"
+                placeholder="张三,13800138000,朋友,2
+李四,同事,1
+王五,亲戚,3
+赵六"
                 value={importText}
                 onInput={(e) => setImportText(e.detail.value)}
                 autoHeight
@@ -477,8 +536,21 @@ const GuestsPage: React.FC = () => {
             </View>
 
             <View
+              className={styles.modalBtn}
+              style={{ marginTop: 24 }}
+              onClick={handlePreviewWithGuest}
+            >
+              <Text>预览专属邀请函</Text>
+            </View>
+
+            <View
               className={classnames(styles.modalBtn)}
-              style={{ marginTop: 24, background: '#fff', color: '#ff4d6d', border: '2rpx solid #ff4d6d' }}
+              style={{
+                marginTop: 16,
+                background: '#fff',
+                color: '#ff4d6d',
+                border: '2rpx solid #ff4d6d',
+              }}
               onClick={handleDeleteGuest}
             >
               <Text>删除宾客</Text>

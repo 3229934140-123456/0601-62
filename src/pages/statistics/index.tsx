@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import StatCard from '@/components/StatCard';
+import { useGuestStore, selectGuestStats } from '@/store/guestStore';
 
 type RangeType = 'today' | 'week' | 'month';
 
@@ -25,6 +26,12 @@ const sourceData = [
 
 const StatisticsPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<RangeType>('week');
+  const guestStats = useGuestStore(selectGuestStats);
+  const hydrate = useGuestStore((state) => state.hydrate);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   const maxValue = Math.max(...weekData.map((d) => d.value));
 
@@ -32,9 +39,20 @@ const StatisticsPage: React.FC = () => {
     <ScrollView scrollY className={styles.page}>
       <View className={styles.overviewGrid}>
         <StatCard icon="👁️" label="总浏览量" value="384" trend="↑ 12% 较昨日" color="#ff6b8b" />
-        <StatCard icon="✅" label="报名数" value="145" trend="↑ 8% 较昨日" color="#00b42a" />
+        <StatCard
+          icon="✅"
+          label="报名数"
+          value={guestStats.confirmed.toString()}
+          trend="RSVP确认"
+          color="#00b42a"
+        />
         <StatCard icon="💬" label="祝福数" value="99" color="#ff7d00" />
-        <StatCard icon="👥" label="宾客数" value="200" color="#165dff" />
+        <StatCard
+          icon="👥"
+          label="宾客数"
+          value={guestStats.total.toString()}
+          color="#165dff"
+        />
       </View>
 
       <View className={styles.section}>
@@ -86,17 +104,22 @@ const StatisticsPage: React.FC = () => {
         <View className={styles.sectionTitle}>RSVP 统计</View>
         <View className={styles.rsvpStats}>
           <View className={styles.rsvpItem}>
-            <Text className={styles.rsvpNum}>56</Text>
+            <Text className={styles.rsvpNum}>{guestStats.confirmed}</Text>
             <Text className={styles.rsvpLabel}>已确认</Text>
           </View>
           <View className={styles.rsvpItem}>
-            <Text className={classnames(styles.rsvpNum, styles.rsvpPending)}>18</Text>
+            <Text className={classnames(styles.rsvpNum, styles.rsvpPending)}>{guestStats.pending}</Text>
             <Text className={styles.rsvpLabel}>待回复</Text>
           </View>
           <View className={styles.rsvpItem}>
-            <Text className={classnames(styles.rsvpNum, styles.rsvpDeclined)}>6</Text>
+            <Text className={classnames(styles.rsvpNum, styles.rsvpDeclined)}>{guestStats.declined}</Text>
             <Text className={styles.rsvpLabel}>已婉拒</Text>
           </View>
+        </View>
+        <View style={{ marginTop: 24, textAlign: 'center' }}>
+          <Text style={{ fontSize: 24, color: '#86909c' }}>
+            预计出席人数：<Text style={{ color: '#ff6b8b', fontWeight: 600 }}>{guestStats.totalPeople}</Text> 人
+          </Text>
         </View>
       </View>
 

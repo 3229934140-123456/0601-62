@@ -22,6 +22,10 @@ const defaultData: InvitationData = {
   time: '12:00',
   location: '某某大酒店',
   address: '北京市朝阳区建国路88号',
+  mapLat: 39.9042,
+  mapLng: 116.4074,
+  musicUrl: '',
+  musicName: '梦中的婚礼',
   coverImage: 'https://picsum.photos/id/292/750/1200',
   photos: [
     'https://picsum.photos/id/292/600/400',
@@ -35,6 +39,8 @@ const defaultData: InvitationData = {
   ],
   colorTheme: '#ff6b8b',
   countdownEnabled: true,
+  passwordEnabled: false,
+  password: '',
 };
 
 export const useEditorStore = create<EditorState>((set) => ({

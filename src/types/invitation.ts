@@ -23,12 +23,14 @@ export interface InvitationData {
   mapLat?: number;
   mapLng?: number;
   musicUrl?: string;
+  musicName: string;
   coverImage: string;
   photos: string[];
   schedule: ScheduleItem[];
   colorTheme: string;
   countdownEnabled: boolean;
-  password?: string;
+  passwordEnabled: boolean;
+  password: string;
 }
 
 export interface ScheduleItem {

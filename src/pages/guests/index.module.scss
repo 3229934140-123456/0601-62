@@ -120,3 +120,301 @@
 .listContent {
   padding-bottom: 120rpx;
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.modalContent {
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: $spacing-lg;
+  padding-bottom: calc(#{$spacing-lg} + env(safe-area-inset-bottom));
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.modalClose {
+  font-size: $font-size-xl;
+  color: $color-text-tertiary;
+  padding: $spacing-xs;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.formRow {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.formRowItem {
+  flex: 1;
+}
+
+.selectRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.selectOption {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-button;
+  background: $color-bg-section;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-primary-bg;
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.modalBtn {
+  width: 100%;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-fast;
+  margin-top: $spacing-md;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.importHint {
+  padding: $spacing-md;
+  background: $color-primary-bg;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+}
+
+.importHintTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.importHintText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.6;
+}
+
+.importHintCode {
+  display: block;
+  margin-top: $spacing-sm;
+  padding: $spacing-sm;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  font-size: 22rpx;
+  color: $color-text-tertiary;
+  font-family: monospace;
+}
+
+.actionSheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.actionSheetContent {
+  width: 100%;
+  background: $color-bg-card;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: $spacing-sm;
+  padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
+}
+
+.actionItem {
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border-radius: $radius-md;
+  transition: background $transition-fast;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+
+  & + & {
+    border-top: 1rpx solid $color-divider;
+  }
+
+  &.danger {
+    color: $color-error;
+  }
+}
+
+.actionCancel {
+  margin-top: $spacing-sm;
+  background: $color-bg-section;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.rsvpActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.rsvpBtn {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.confirm {
+    background: $color-success;
+    color: $color-text-white;
+  }
+
+  &.decline {
+    background: $color-text-disabled;
+    color: $color-text-white;
+  }
+
+  &.pending {
+    background: $color-warning;
+    color: $color-text-white;
+  }
+}
+
+.countControl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.countBtn {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-section;
+  border-radius: 50%;
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.countNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  min-width: 60rpx;
+  text-align: center;
+}
+
+.countLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: center;
+  margin-top: $spacing-xs;
+}
+
+.detailSection {
+  margin-bottom: $spacing-lg;
+}
+
+.detailLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.detailValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}

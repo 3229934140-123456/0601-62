@@ -10,6 +10,7 @@ export default defineAppConfig({
     'pages/preview/index',
     'pages/wishes/index',
     'pages/statistics/index',
+    'pages/order-detail/index',
   ],
   window: {
     backgroundTextStyle: 'light',

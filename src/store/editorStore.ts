@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro';
 
 interface EditorState {
   invitationData: InvitationData;
+  passwordVerified: boolean;
   setInvitationData: (data: Partial<InvitationData>) => void;
   updateField: (key: keyof InvitationData, value: any) => void;
   addPhoto: (photo: string) => void;
@@ -13,11 +14,18 @@ interface EditorState {
   updateSchedule: (index: number, item: Partial<ScheduleItem>) => void;
   reset: () => void;
   hydrate: () => void;
+  verifyPassword: () => boolean;
+  clearPasswordVerification: () => void;
 }
 
 const STORAGE_KEY = 'editor_store_data';
 
+const generateWorkId = (): string => {
+  return 'work_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+};
+
 const defaultData: InvitationData = {
+  id: generateWorkId(),
   title: '我们结婚啦',
   subtitle: 'Wedding Invitation',
   groomName: '新郎姓名',
@@ -47,6 +55,8 @@ const defaultData: InvitationData = {
   password: '',
 };
 
+const verifiedWorks = new Set<string>();
+
 const loadFromStorage = (): InvitationData | null => {
   try {
     const data = Taro.getStorageSync(STORAGE_KEY);
@@ -69,26 +79,44 @@ const saveToStorage = (data: InvitationData) => {
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   invitationData: defaultData,
+  passwordVerified: false,
 
   hydrate: () => {
     const saved = loadFromStorage();
     if (saved) {
-      set({ invitationData: { ...defaultData, ...saved } });
+      const merged = { ...defaultData, ...saved };
+      if (!merged.id) {
+        merged.id = generateWorkId();
+      }
+      set({
+        invitationData: merged,
+        passwordVerified: verifiedWorks.has(merged.id),
+      });
     }
   },
 
   setInvitationData: (data) =>
     set((state) => {
       const newData = { ...state.invitationData, ...data };
+      let newVerified = state.passwordVerified;
+      if (data.password !== undefined || data.passwordEnabled === false) {
+        verifiedWorks.delete(state.invitationData.id);
+        newVerified = false;
+      }
       saveToStorage(newData);
-      return { invitationData: newData };
+      return { invitationData: newData, passwordVerified: newVerified };
     }),
 
   updateField: (key, value) =>
     set((state) => {
       const newData = { ...state.invitationData, [key]: value };
+      let newVerified = state.passwordVerified;
+      if (key === 'password' || (key === 'passwordEnabled' && value === false)) {
+        verifiedWorks.delete(state.invitationData.id);
+        newVerified = false;
+      }
       saveToStorage(newData);
-      return { invitationData: newData };
+      return { invitationData: newData, passwordVerified: newVerified };
     }),
 
   addPhoto: (photo) =>
@@ -144,7 +172,22 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }),
 
   reset: () => {
-    saveToStorage(defaultData);
-    set({ invitationData: defaultData });
+    const newId = generateWorkId();
+    const newDefault = { ...defaultData, id: newId };
+    saveToStorage(newDefault);
+    set({ invitationData: newDefault, passwordVerified: false });
+  },
+
+  verifyPassword: () => {
+    const { invitationData } = get();
+    verifiedWorks.add(invitationData.id);
+    set({ passwordVerified: true });
+    return true;
+  },
+
+  clearPasswordVerification: () => {
+    const { invitationData } = get();
+    verifiedWorks.delete(invitationData.id);
+    set({ passwordVerified: false });
   },
 }));

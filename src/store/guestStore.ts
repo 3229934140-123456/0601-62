@@ -13,6 +13,10 @@ interface GuestState {
   updateGuestsCount: (id: string, count: number) => void;
   generateTitle: (name: string, gender?: 'male' | 'female') => string;
   getDisplayTitle: (guest: Guest) => string;
+  generateInviteLink: (id: string) => string;
+  generateInviteLinks: (ids: string[]) => void;
+  markInviteSent: (id: string) => void;
+  incrementViewCount: (id: string) => void;
   hydrate: () => void;
 }
 
@@ -61,6 +65,9 @@ export const useGuestStore = create<GuestState>((set, get) => ({
       title: guest.title || '',
       note: guest.note,
       createdAt: new Date().toLocaleString('zh-CN'),
+      inviteLinkGenerated: false,
+      inviteSent: false,
+      viewCount: 0,
     };
     set((state) => {
       const newGuests = [...state.guests, newGuest];
@@ -81,6 +88,9 @@ export const useGuestStore = create<GuestState>((set, get) => ({
       title: g.title || '',
       note: g.note,
       createdAt: now,
+      inviteLinkGenerated: false,
+      inviteSent: false,
+      viewCount: 0,
     }));
     set((state) => {
       const updated = [...state.guests, ...newGuests];
@@ -142,6 +152,47 @@ export const useGuestStore = create<GuestState>((set, get) => ({
     }
     return `${guest.name}${guest.title}`;
   },
+
+  generateInviteLink: (id) => {
+    set((state) => {
+      const updated = state.guests.map((g) =>
+        g.id === id ? { ...g, inviteLinkGenerated: true } : g
+      );
+      saveToStorage(updated);
+      return { guests: updated };
+    });
+    return `/pages/preview/index?guestId=${id}&mode=visitor`;
+  },
+
+  generateInviteLinks: (ids) => {
+    set((state) => {
+      const updated = state.guests.map((g) =>
+        ids.includes(g.id) ? { ...g, inviteLinkGenerated: true } : g
+      );
+      saveToStorage(updated);
+      return { guests: updated };
+    });
+  },
+
+  markInviteSent: (id) => {
+    set((state) => {
+      const updated = state.guests.map((g) =>
+        g.id === id ? { ...g, inviteSent: true } : g
+      );
+      saveToStorage(updated);
+      return { guests: updated };
+    });
+  },
+
+  incrementViewCount: (id) => {
+    set((state) => {
+      const updated = state.guests.map((g) =>
+        g.id === id ? { ...g, viewCount: (g.viewCount || 0) + 1 } : g
+      );
+      saveToStorage(updated);
+      return { guests: updated };
+    });
+  },
 }));
 
 export const selectGuestStats = (state: GuestState) => {
@@ -153,20 +204,30 @@ export const selectGuestStats = (state: GuestState) => {
   const totalPeople = guests
     .filter((g) => g.rsvpStatus !== 'declined')
     .reduce((sum, g) => sum + g.guestsCount, 0);
-  return { total, confirmed, pending, declined, totalPeople };
+  const totalViews = guests.reduce((sum, g) => sum + (g.viewCount || 0), 0);
+  return { total, confirmed, pending, declined, totalPeople, totalViews };
 };
 
 export const selectGroupStats = (state: GuestState) => {
   const { guests } = state;
-  const stats: Record<string, { count: number; people: number }> = {};
+  const stats: Record<string, { count: number; people: number; views: number; confirmed: number; pending: number; declined: number }> = {};
   guests.forEach((g) => {
     if (!stats[g.group]) {
-      stats[g.group] = { count: 0, people: 0 };
+      stats[g.group] = { count: 0, people: 0, views: 0, confirmed: 0, pending: 0, declined: 0 };
     }
     stats[g.group].count += 1;
+    stats[g.group].views += g.viewCount || 0;
+    if (g.rsvpStatus === 'confirmed') stats[g.group].confirmed += 1;
+    if (g.rsvpStatus === 'pending') stats[g.group].pending += 1;
+    if (g.rsvpStatus === 'declined') stats[g.group].declined += 1;
     if (g.rsvpStatus !== 'declined') {
       stats[g.group].people += g.guestsCount;
     }
   });
   return stats;
+};
+
+export const selectGuestsByGroup = (state: GuestState, group: string) => {
+  if (group === 'all') return state.guests;
+  return state.guests.filter((g) => g.group === group);
 };

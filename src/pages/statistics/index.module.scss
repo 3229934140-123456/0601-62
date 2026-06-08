@@ -4,6 +4,7 @@
   min-height: 100vh;
   background: $color-bg-page;
   padding: $spacing-md $page-padding;
+  padding-bottom: 120rpx;
   box-sizing: border-box;
 }
 
@@ -22,11 +23,41 @@
   box-shadow: $shadow-card;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
 .sectionTitle {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  margin-bottom: $spacing-md;
+  margin-bottom: 0;
+}
+
+.sortTabs {
+  display: flex;
+  gap: 8rpx;
+  background: $color-bg-section;
+  border-radius: $radius-button;
+  padding: 4rpx;
+}
+
+.sortTab {
+  padding: 8rpx 20rpx;
+  font-size: 22rpx;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-bg-card;
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  }
 }
 
 .chartPlaceholder {
@@ -69,47 +100,136 @@
   color: $color-text-tertiary;
 }
 
-.sourceList {
+.groupStats {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-sm;
 }
 
-.sourceItem {
+.groupStatCard {
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.98);
+    background: lighten($color-bg-section, 2%);
+  }
+}
+
+.groupHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.groupName {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.groupCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.groupDetailRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.groupDetailItem {
+  text-align: center;
+  flex: 1;
+}
+
+.groupDetailValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.groupDetailLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.groupViews {
+  text-align: right;
+}
+
+.guestList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.guestRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.guestInfo {
+  flex: 1;
+}
+
+.guestName {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  display: block;
+}
+
+.guestGroup {
+  font-size: 22rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.guestStats {
+  display: flex;
   gap: $spacing-md;
 }
 
-.sourceName {
-  width: 120rpx;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  flex-shrink: 0;
+.guestStatItem {
+  text-align: center;
+  min-width: 60rpx;
 }
 
-.sourceBar {
-  flex: 1;
-  height: 20rpx;
-  background: $color-bg-section;
-  border-radius: 10rpx;
-  overflow: hidden;
-}
-
-.sourceFill {
-  height: 100%;
-  background: linear-gradient(90deg, $color-primary 0%, $color-primary-light 100%);
-  border-radius: 10rpx;
-  transition: width $transition-slow;
-}
-
-.sourceValue {
-  width: 80rpx;
-  text-align: right;
-  font-size: $font-size-sm;
-  color: $color-text-primary;
+.guestStatValue {
+  font-size: $font-size-base;
   font-weight: $font-weight-semibold;
-  flex-shrink: 0;
+  color: $color-text-primary;
+  display: block;
+}
+
+.guestStatLabel {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+  display: block;
+}
+
+.rsvpConfirmed {
+  color: $color-success !important;
+}
+
+.rsvpPending {
+  color: $color-warning !important;
+}
+
+.rsvpDeclined {
+  color: $color-text-disabled !important;
 }
 
 .rsvpStats {
@@ -168,4 +288,115 @@
     color: $color-text-white;
     font-weight: $font-weight-semibold;
   }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-lg;
+  box-sizing: border-box;
+}
+
+.modalContent {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.modalClose {
+  font-size: 48rpx;
+  color: $color-text-tertiary;
+  line-height: 1;
+  padding: 0 8rpx;
+}
+
+.modalBody {
+  flex: 1;
+  padding: $spacing-md;
+  box-sizing: border-box;
+}
+
+.detailGuestItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+}
+
+.detailGuestInfo {
+  flex: 1;
+}
+
+.detailGuestName {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  display: block;
+}
+
+.detailGuestTags {
+  display: flex;
+  gap: $spacing-xs;
+  margin-top: 8rpx;
+}
+
+.detailRsvpTag {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  background: rgba(0, 180, 42, 0.1);
+  color: $color-success;
+
+  &.rsvpConfirmed {
+    background: rgba(0, 180, 42, 0.1);
+    color: $color-success;
+  }
+
+  &.rsvpPending {
+    background: rgba(255, 125, 0, 0.1);
+    color: $color-warning;
+  }
+
+  &.rsvpDeclined {
+    background: rgba(134, 144, 156, 0.1);
+    color: $color-text-tertiary;
+  }
+}
+
+.detailViewTag {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.detailGuestPeople {
+  text-align: right;
 }

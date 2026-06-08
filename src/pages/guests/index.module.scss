@@ -418,3 +418,126 @@
   font-size: $font-size-md;
   color: $color-text-primary;
 }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-page;
+  gap: $spacing-sm;
+}
+
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.selectAllText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  transition: all $transition-fast;
+
+  &.checked {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+.checkIcon {
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.cancelSelect {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-sm;
+}
+
+.selectModeBtn {
+  flex-shrink: 0;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.batchBar {
+  display: flex;
+  gap: $spacing-sm;
+  padding: 0 $page-padding $spacing-sm;
+  background: $color-bg-page;
+}
+
+.batchBtn {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.guestItemWrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.itemCheckbox {
+  flex-shrink: 0;
+  padding: $spacing-xs;
+}
+
+.inviteStatus {
+  flex-shrink: 0;
+  padding: 8rpx 16rpx;
+  background: $color-primary-bg;
+  border-radius: 24rpx;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.sent {
+    background: rgba(0, 180, 42, 0.1);
+  }
+}
+
+.inviteStatusText {
+  font-size: 20rpx;
+  color: $color-primary;
+
+  .sent & {
+    color: $color-success;
+  }
+}

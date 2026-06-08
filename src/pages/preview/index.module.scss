@@ -622,3 +622,260 @@
   font-size: 20rpx;
   margin-top: 4rpx;
 }
+
+.modeBanner {
+  background: rgba(255, 107, 139, 0.1);
+  padding: $spacing-xs $page-padding;
+  text-align: center;
+}
+
+.modeBannerText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
+.modeToggle {
+  display: flex;
+  background: #2a2a2a;
+  margin: 0 $page-padding $spacing-md;
+  border-radius: $radius-md;
+  padding: 6rpx;
+}
+
+.modeTab {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: #86909c;
+  transition: all $transition-fast;
+
+  &.active {
+    background: #fff;
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.rsvpSection {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.rsvpButtons {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.rsvpBtn {
+  flex: 1;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  border: 2rpx solid $color-border;
+  transition: all $transition-fast;
+
+  &.confirm {
+    border-width: 2rpx;
+    border-style: solid;
+    font-weight: $font-weight-semibold;
+  }
+
+  &.decline {
+    color: $color-text-secondary;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.rsvpResult {
+  text-align: center;
+  margin-top: $spacing-md;
+}
+
+.rsvpReselect {
+  margin-top: $spacing-md;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-decoration: underline;
+}
+
+.countSelector {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.countBtn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #fff;
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  transition: all $transition-fast;
+
+  &:active {
+    background: $color-bg-section;
+  }
+}
+
+.countNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  min-width: 48rpx;
+  text-align: center;
+}
+
+.wishSection {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.wishInputBox {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.wishInput {
+  flex: 1;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: #fff;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  border: 2rpx solid $color-border;
+}
+
+.wishSendBtn {
+  padding: 0 $spacing-lg;
+  height: 72rpx;
+  border-radius: $radius-md;
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.wishList {
+  max-height: 400rpx;
+}
+
+.wishItem {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.wishAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: $color-bg-section;
+}
+
+.wishContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.wishHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.wishName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.wishTime {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.wishText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}
+
+.mapNavSection {
+  margin-top: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.mapNavIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.mapNavTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 4rpx;
+}
+
+.mapNavAddr {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.mapNavArrow {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+

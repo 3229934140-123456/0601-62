@@ -12,6 +12,7 @@ export interface Invitation {
 }
 
 export interface InvitationData {
+  id: string;
   title: string;
   subtitle: string;
   groomName: string;

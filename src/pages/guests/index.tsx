@@ -19,6 +19,9 @@ const GuestsPage: React.FC = () => {
   const updateGuestsCount = useGuestStore((state) => state.updateGuestsCount);
   const generateTitle = useGuestStore((state) => state.generateTitle);
   const getDisplayTitle = useGuestStore((state) => state.getDisplayTitle);
+  const generateInviteLink = useGuestStore((state) => state.generateInviteLink);
+  const generateInviteLinks = useGuestStore((state) => state.generateInviteLinks);
+  const markInviteSent = useGuestStore((state) => state.markInviteSent);
   const hydrate = useGuestStore((state) => state.hydrate);
   const stats = useGuestStore(selectGuestStats);
   const groupStats = useGuestStore(selectGroupStats);
@@ -34,6 +37,8 @@ const GuestsPage: React.FC = () => {
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [importText, setImportText] = useState('');
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,6 +70,10 @@ const GuestsPage: React.FC = () => {
     if (activeGroup === 'all') return guests;
     return guests.filter((g) => g.group === activeGroup);
   }, [guests, activeGroup]);
+
+  const allSelected = useMemo(() => {
+    return filteredGuests.length > 0 && filteredGuests.every((g) => selectedIds.includes(g.id));
+  }, [filteredGuests, selectedIds]);
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -124,7 +133,7 @@ const GuestsPage: React.FC = () => {
     const numberRegex = /^\d+$/;
     const commonGroups = [...defaultGroups, '男方亲友', '女方亲友', '家人', '领导', '朋友', '同事', '同学', '亲戚', '其他'];
 
-    lines.forEach((line) => {
+    const parseLine = (line: string) => {
       let parts = line.split(/[,，\t]+/).map((s) => s.trim()).filter(Boolean);
 
       if (parts.length <= 1) {
@@ -134,7 +143,7 @@ const GuestsPage: React.FC = () => {
         }
       }
 
-      if (parts.length === 0) return;
+      if (parts.length === 0) return null;
 
       let name = '';
       let phone = '';
@@ -162,15 +171,26 @@ const GuestsPage: React.FC = () => {
       }
 
       if (name) {
-        result.push({
+        return {
           name,
           phone,
           group,
           guestsCount: count,
           rsvpStatus: 'pending',
           title: `${name}先生/女士`,
-        });
+        };
       }
+      return null;
+    };
+
+    lines.forEach((line) => {
+      const segments = line.split(/[、；;]+/).map((s) => s.trim()).filter(Boolean);
+      segments.forEach((seg) => {
+        const parsed = parseLine(seg);
+        if (parsed) {
+          result.push(parsed);
+        }
+      });
     });
 
     return result;
@@ -195,8 +215,12 @@ const GuestsPage: React.FC = () => {
   };
 
   const handleGuestClick = (guest: Guest) => {
-    setSelectedGuest(guest);
-    setShowDetailModal(true);
+    if (selectMode) {
+      toggleSelect(guest.id);
+    } else {
+      setSelectedGuest(guest);
+      setShowDetailModal(true);
+    }
   };
 
   const handleUpdateRsvp = (status: 'confirmed' | 'declined' | 'pending') => {
@@ -237,6 +261,57 @@ const GuestsPage: React.FC = () => {
     });
   };
 
+  const handleCopyLink = (guest: Guest) => {
+    const link = generateInviteLink(guest.id);
+    Taro.setClipboardData({
+      data: link,
+      success: () => {
+        Taro.showToast({ title: '链接已复制', icon: 'success' });
+      },
+    });
+  };
+
+  const handleBatchGenerate = () => {
+    if (selectedIds.length === 0) {
+      Taro.showToast({ title: '请先选择宾客', icon: 'none' });
+      return;
+    }
+    generateInviteLinks(selectedIds);
+    Taro.showToast({ title: `已生成${selectedIds.length}个邀请链接`, icon: 'success' });
+    setSelectMode(false);
+    setSelectedIds([]);
+  };
+
+  const handleBatchSend = () => {
+    if (selectedIds.length === 0) {
+      Taro.showToast({ title: '请先选择宾客', icon: 'none' });
+      return;
+    }
+    selectedIds.forEach((id) => markInviteSent(id));
+    Taro.showToast({ title: `已标记${selectedIds.length}人为已发送`, icon: 'success' });
+    setSelectMode(false);
+    setSelectedIds([]);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredGuests.map((g) => g.id));
+    }
+  };
+
+  const handleExitSelectMode = () => {
+    setSelectMode(false);
+    setSelectedIds([]);
+  };
+
   const handleExport = () => {
     console.log('[Guests] Export guests');
     Taro.showToast({ title: '导出成功', icon: 'success' });
@@ -267,22 +342,83 @@ const GuestsPage: React.FC = () => {
         </View>
       </View>
 
-      <ScrollView scrollX className={styles.groupTabs} enhanced showScrollbar={false}>
-        {guestGroups.map((group) => (
-          <View
-            key={group.key}
-            className={classnames(styles.groupTab, activeGroup === group.key && styles.active)}
-            onClick={() => setActiveGroup(group.key)}
-          >
-            <Text>{group.label} ({group.count})</Text>
+      <View className={styles.toolbar}>
+        {selectMode ? (
+          <>
+            <View className={styles.selectAll} onClick={toggleSelectAll}>
+              <View className={classnames(styles.checkbox, allSelected && styles.checked)}>
+                {allSelected && <Text className={styles.checkIcon}>✓</Text>}
+              </View>
+              <Text className={styles.selectAllText}>全选</Text>
+            </View>
+            <View style={{ flex: 1, textAlign: 'center' }}>
+              <Text style={{ fontSize: 28, color: '#ff6b8b', fontWeight: 600 }}>
+                已选 {selectedIds.length} 人
+              </Text>
+            </View>
+            <View className={styles.cancelSelect} onClick={handleExitSelectMode}>
+              <Text>取消</Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <ScrollView scrollX className={styles.groupTabs} enhanced showScrollbar={false}>
+              {guestGroups.map((group) => (
+                <View
+                  key={group.key}
+                  className={classnames(styles.groupTab, activeGroup === group.key && styles.active)}
+                  onClick={() => setActiveGroup(group.key)}
+                >
+                  <Text>{group.label} ({group.count})</Text>
+                </View>
+              ))}
+            </ScrollView>
+            <View className={styles.selectModeBtn} onClick={() => setSelectMode(true)}>
+              <Text>选择</Text>
+            </View>
+          </>
+        )}
+      </View>
+
+      {selectMode && (
+        <View className={styles.batchBar}>
+          <View className={styles.batchBtn} onClick={handleBatchGenerate}>
+            <Text>生成链接</Text>
           </View>
-        ))}
-      </ScrollView>
+          <View className={styles.batchBtn} onClick={handleBatchSend}>
+            <Text>标记已发</Text>
+          </View>
+        </View>
+      )}
 
       <ScrollView scrollY className={styles.listContent}>
         <View className={styles.guestList}>
           {filteredGuests.map((guest) => (
-            <GuestItem key={guest.id} guest={guest} onClick={() => handleGuestClick(guest)} />
+            <View key={guest.id} className={styles.guestItemWrapper}>
+              {selectMode && (
+                <View className={styles.itemCheckbox} onClick={() => toggleSelect(guest.id)}>
+                  <View className={classnames(styles.checkbox, selectedIds.includes(guest.id) && styles.checked)}>
+                    {selectedIds.includes(guest.id) && <Text className={styles.checkIcon}>✓</Text>}
+                  </View>
+                </View>
+              )}
+              <View style={{ flex: 1 }} onClick={() => handleGuestClick(guest)}>
+                <GuestItem guest={guest} onClick={() => handleGuestClick(guest)} />
+              </View>
+              {!selectMode && guest.inviteLinkGenerated && (
+                <View
+                  className={classnames(styles.inviteStatus, guest.inviteSent && styles.sent)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyLink(guest);
+                  }}
+                >
+                  <Text className={styles.inviteStatusText}>
+                    {guest.inviteSent ? '已发送' : '已生成'}
+                  </Text>
+                </View>
+              )}
+            </View>
           ))}
           {filteredGuests.length === 0 && (
             <View style={{ padding: 80, textAlign: 'center', color: '#c9cdd4' }}>
@@ -294,12 +430,25 @@ const GuestsPage: React.FC = () => {
       </ScrollView>
 
       <View className={styles.bottomBar}>
-        <View className={classnames(styles.btn, styles.secondary)} onClick={handleExport}>
-          <Text>导出名单</Text>
-        </View>
-        <View className={classnames(styles.btn, styles.primary)} onClick={() => setShowActionSheet(true)}>
-          <Text>添加宾客</Text>
-        </View>
+        {selectMode ? (
+          <>
+            <View className={classnames(styles.btn, styles.secondary)} onClick={handleBatchGenerate}>
+              <Text>批量生成链接</Text>
+            </View>
+            <View className={classnames(styles.btn, styles.primary)} onClick={handleBatchSend}>
+              <Text>标记已发送</Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <View className={classnames(styles.btn, styles.secondary)} onClick={handleExport}>
+              <Text>导出名单</Text>
+            </View>
+            <View className={classnames(styles.btn, styles.primary)} onClick={() => setShowActionSheet(true)}>
+              <Text>添加宾客</Text>
+            </View>
+          </>
+        )}
       </View>
 
       {showActionSheet && (
@@ -432,19 +581,19 @@ const GuestsPage: React.FC = () => {
             <View className={styles.importHint}>
               <Text className={styles.importHintTitle}>格式说明</Text>
               <Text className={styles.importHintText}>
-                每行一位宾客，用逗号或制表符分隔，顺序随意
+                每行一位宾客，用逗号、空格或制表符分隔，顺序随意
               </Text>
               <Text className={styles.importHintCode}>
                 张三,13800138000,朋友,2
               </Text>
               <Text className={styles.importHintCode}>
-                李四,同事,1
+                李四 同事 1
               </Text>
               <Text className={styles.importHintCode}>
-                王五,亲戚,3
+                王五 亲戚 3、赵六 朋友 1
               </Text>
               <Text className={styles.importHintText} style={{ marginTop: 8 }}>
-                手机号、分组、人数为选填，系统会自动识别
+                手机号、分组、人数为选填，系统会自动识别；顿号分隔可一行多人
               </Text>
             </View>
 
@@ -453,9 +602,8 @@ const GuestsPage: React.FC = () => {
               <Textarea
                 className={styles.formTextarea}
                 placeholder="张三,13800138000,朋友,2
-李四,同事,1
-王五,亲戚,3
-赵六"
+李四 同事 1
+王五 亲戚 3、赵六 朋友 1"
                 value={importText}
                 onInput={(e) => setImportText(e.detail.value)}
                 autoHeight
@@ -509,6 +657,28 @@ const GuestsPage: React.FC = () => {
                   <Text>+</Text>
                 </View>
               </View>
+            </View>
+
+            <View className={styles.detailSection}>
+              <Text className={styles.detailLabel}>邀请状态</Text>
+              <View style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Text className={styles.detailValue}>
+                  {selectedGuest.inviteLinkGenerated ? (selectedGuest.inviteSent ? '已发送' : '已生成') : '未生成'}
+                </Text>
+                {selectedGuest.inviteLinkGenerated && (
+                  <Text
+                    style={{ fontSize: 24, color: '#ff6b8b', textDecoration: 'underline' }}
+                    onClick={() => handleCopyLink(selectedGuest)}
+                  >
+                    复制链接
+                  </Text>
+                )}
+              </View>
+            </View>
+
+            <View className={styles.detailSection}>
+              <Text className={styles.detailLabel}>浏览次数</Text>
+              <Text className={styles.detailValue}>{selectedGuest.viewCount || 0} 次</Text>
             </View>
 
             <View className={styles.rsvpActions}>

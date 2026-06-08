@@ -8,6 +8,9 @@ export interface Guest {
   title: string;
   note?: string;
   createdAt: string;
+  inviteLinkGenerated?: boolean;
+  inviteSent?: boolean;
+  viewCount?: number;
 }
 
 export interface GuestGroup {

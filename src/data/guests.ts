@@ -11,6 +11,9 @@ export const guestList: Guest[] = [
     title: '先生/女士',
     note: '大学同学',
     createdAt: '2026-06-01 10:00',
+    inviteLinkGenerated: true,
+    inviteSent: true,
+    viewCount: 5,
   },
   {
     id: 'g002',
@@ -22,6 +25,9 @@ export const guestList: Guest[] = [
     title: '女士',
     note: '闺蜜',
     createdAt: '2026-06-01 10:05',
+    inviteLinkGenerated: true,
+    inviteSent: true,
+    viewCount: 8,
   },
   {
     id: 'g003',
@@ -33,6 +39,9 @@ export const guestList: Guest[] = [
     title: '先生/女士',
     note: '部门经理',
     createdAt: '2026-06-02 14:30',
+    inviteLinkGenerated: true,
+    inviteSent: false,
+    viewCount: 0,
   },
   {
     id: 'g004',
@@ -44,6 +53,9 @@ export const guestList: Guest[] = [
     title: '先生',
     note: '发小，出差中',
     createdAt: '2026-06-02 15:20',
+    inviteLinkGenerated: true,
+    inviteSent: true,
+    viewCount: 3,
   },
   {
     id: 'g005',
@@ -55,6 +67,9 @@ export const guestList: Guest[] = [
     title: '女士',
     note: '表姐一家',
     createdAt: '2026-06-03 09:10',
+    inviteLinkGenerated: false,
+    inviteSent: false,
+    viewCount: 0,
   },
   {
     id: 'g006',
@@ -66,6 +81,9 @@ export const guestList: Guest[] = [
     title: '先生/女士',
     note: '技术部同事',
     createdAt: '2026-06-03 11:45',
+    inviteLinkGenerated: false,
+    inviteSent: false,
+    viewCount: 0,
   },
   {
     id: 'g007',
@@ -77,6 +95,9 @@ export const guestList: Guest[] = [
     title: '女士',
     note: '高中同桌',
     createdAt: '2026-06-04 08:30',
+    inviteLinkGenerated: true,
+    inviteSent: true,
+    viewCount: 12,
   },
   {
     id: 'g008',
@@ -88,6 +109,9 @@ export const guestList: Guest[] = [
     title: '先生/女士',
     note: '大学室友',
     createdAt: '2026-06-04 10:00',
+    inviteLinkGenerated: false,
+    inviteSent: false,
+    viewCount: 0,
   },
 ];
 
